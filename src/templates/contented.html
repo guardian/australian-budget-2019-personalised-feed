@@ -1,0 +1,36 @@
+<div>
+	{{#each content}}
+
+		<div class="story_block column">
+
+			<h2>{{item}}</h2>
+
+			<div>
+				<input type="checkbox" class="read-more-state" id="post-{{@key}}" />
+  				<div class="read-more-wrap">
+					{{{html}}}
+				</div>
+				<label for="post-{{@key}}" class="read-more-trigger"></label>
+
+				{{#if url}}
+				  <a href="{{this.url}}" target="_blank"><div class="curl">Web</div></a>
+				{{/if}}
+
+
+			</div>
+
+		</div>
+
+		<div class="tag_column">
+
+			<ul>
+				{{#each cats}}
+				<li class="{{classify(this)}}">{{this}}</li>
+				{{/each}}
+			</ul>
+
+		</div>
+
+	{{/each}}
+
+</div>

@@ -1,0 +1,14 @@
+<div>
+	{{#each group}}
+	<div class="tertiary">
+		<div class="leftist">{{this.group}}</div>
+		<div class="righton">
+			<ul>
+				{{#each this.items}}
+				<li class="tag biotag" data-label="{{this}}">{{this}}</li>
+				{{/each}}
+			</ul>
+		</div>
+	</div>
+	{{/each}}
+</div>
