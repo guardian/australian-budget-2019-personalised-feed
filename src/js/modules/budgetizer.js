@@ -70,7 +70,7 @@ export class Budgetizer {
 
 			let obj = {}
 			obj.tag = tags[i]
-			obj.active = true
+			obj.active = false
 			obj.colour = self.scale( self.pos ).hex();
 			self.pos = self.pos + self.increment
 			this.tags.push(obj)
@@ -323,13 +323,25 @@ export class Budgetizer {
 
 		// console.log(self.currentTags)
 
-		var results = this.data.filter( (item) => {
+		var results 
 
-			//console.log(item.tags)
 
-			return self.toolbelt.contains(item.tags, self.currentTags)
 
-		});
+		if (self.currentTags.length === 0) {
+
+			results = this.data
+
+		} else {
+
+			results = this.data.filter( (item) => {
+
+				//console.log(item.tags)
+
+				return self.toolbelt.contains(item.tags, self.currentTags)
+
+			});
+
+		}
 
 		// console.log("Results: " + results.length)
 
@@ -357,7 +369,7 @@ export class Budgetizer {
 
 			// If they have selected category tags give less weight to the original importance ranking
 
-			let rank = (self.currentTags.length === self.tags.length && self.currentBioTags.length === 0) ? item.importance : item.importance / ( self.currentTags.length / 2 ) ;
+			let rank = (self.currentTags.length === 0 || self.currentTags.length === 0 && self.currentBioTags.length === 0) ? item.importance : item.importance / ( self.currentTags.length / 2 ) ;
 
 			// The pagerank algorithm...
 
