@@ -54,7 +54,7 @@ export class Budgetizer {
 
 				let tag = arr[i].trim()
 
-				tags.indexOf(tag) === -1 ? tags.push(tag) : '';
+				tags.indexOf(tag) === -1 && tag != '' ? tags.push(tag) : '';
 
 			}
 
@@ -349,7 +349,7 @@ export class Budgetizer {
 
 			// Give more weighting to items that ruturn multiple category matches but don't discriminate too much against items with only one or two category tags
 
-			let multiplier = ( matches.length / total ) + 1.5
+			let multiplier = ( matches.length / total ) + 1
 
 			// Identity markers
 
@@ -357,11 +357,11 @@ export class Budgetizer {
 
 			// If they have selected category tags give less weight to the original importance ranking
 
-			let rank = (self.currentTags > 0) ? item.importance / ( self.currentTags / 2 ) : item.importance ;
+			let rank = (self.currentTags.length === self.tags.length && self.currentBioTags.length === 0) ? item.importance : item.importance / ( self.currentTags.length / 2 ) ;
 
 			// The pagerank algorithm...
 
-			item.pagerank = ( matches.length * multiplier ) + rank + ( connections.length * 6 )
+			item.pagerank = ( matches.length * multiplier ) + rank + ( connections.length * 10 )
 
 			// console.log( matches.length + ' | ' +  total + ' | ' + multiplier + ' | ' + multiplier + ' | ' + (matches.length * multiplier))
 
