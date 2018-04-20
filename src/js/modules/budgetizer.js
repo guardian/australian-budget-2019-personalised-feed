@@ -16,6 +16,8 @@ export class Budgetizer {
 
 		this.scale = chroma.scale(['#ff9b0b','#a60947','008ae5','#66a998','#b82266','#002c59'])
 
+		/*
+
 		this.tags = googledoc.tags
 
 		this.increment = 1 / this.tags.length 
@@ -32,17 +34,48 @@ export class Budgetizer {
 
 		})
 
+		*/
+
+		this.tags = []
+
 		this.currentTags = []
+
+		var tags = []
 
 		this.data = googledoc.data
 
 		this.data.forEach(function(item, index) {
 
-			item.cats = item.tags.split(','); 
+			let arr = item.tags.split(','); 
+
+			item.cats = arr
+
+			for (var i = 0; i < arr.length; i++) {
+
+				let tag = arr[i].trim()
+
+				tags.indexOf(tag) === -1 ? tags.push(tag) : '';
+
+			}
 
 			item.html = self.htmlify(item.description)
 
 		});
+
+		this.increment = 1 / tags.length 
+
+		this.pos = 0
+
+		for (var i = 0; i < tags.length; i++) {
+
+			let obj = {}
+			obj.tag = tags[i]
+			obj.active = true
+			obj.colour = self.scale( self.pos ).hex();
+			self.pos = self.pos + self.increment
+			this.tags.push(obj)
+
+		}
 
 		this.storyCount = this.data.length
 
@@ -286,11 +319,19 @@ export class Budgetizer {
 
 		var self = this
 
+		console.log("Number of stories: " + this.data.length)
+
+		console.log(self.currentTags)
+
 		var results = this.data.filter( (item) => {
+
+			console.log(item.tags)
 
 			return self.toolbelt.contains(item.tags, self.currentTags)
 
 		});
+
+		console.log("Results: " + results.length)
 
 		results.forEach( (item, index) => {
 
@@ -306,19 +347,21 @@ export class Budgetizer {
 
 			let total = arr.length
 
-			// Give more weighting to items that ruturn multiple category matches but don't discriminate against items with only one or two category tags
+			// Give more weighting to items that ruturn multiple category matches but don't discriminate too much against items with only one or two category tags
 
 			let multiplier = ( matches.length / total ) + 1.5
 
-			// Matching tags
+			// Identity markers
 
 			let connections =  self.toolbelt.match_array( item.biographic, self.currentBioTags)
 
-			// console.log("Connections: " + connections.length)
+			// If they have selected category tags give less weight to the original importance ranking
+
+			let rank = (self.currentTags > 0) ? item.importance / ( self.currentTags / 2 ) : item.importance ;
 
 			// The pagerank algorithm...
 
-			item.pagerank = ( matches.length * multiplier ) + (item.importance) + connections.length
+			item.pagerank = ( matches.length * multiplier ) + rank + ( connections.length * 6 )
 
 			// console.log( matches.length + ' | ' +  total + ' | ' + multiplier + ' | ' + multiplier + ' | ' + (matches.length * multiplier))
 
@@ -361,7 +404,7 @@ export class Budgetizer {
 		  });
 		};
 
-		this.render();
+		this.filterTags();
 
 	}
 
