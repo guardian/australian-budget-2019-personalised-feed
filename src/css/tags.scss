@@ -73,17 +73,16 @@
 }
 
 .tag_column ul li {
-	display: block;
 	float: left;
 	margin-right: 5px;
 	margin-bottom: 5px;
 	padding-right: 10px;
-	opacity: 0.3;
+	display: none;
 	text-align: right;
 }
 
 .tag_column ul li.active{
-    opacity: 0.7;
+    display: block;
 }
 
 .web_redirect {
