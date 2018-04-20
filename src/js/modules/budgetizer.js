@@ -319,19 +319,19 @@ export class Budgetizer {
 
 		var self = this
 
-		console.log("Number of stories: " + this.data.length)
+		// console.log("Number of stories: " + this.data.length)
 
-		console.log(self.currentTags)
+		// console.log(self.currentTags)
 
 		var results = this.data.filter( (item) => {
 
-			console.log(item.tags)
+			//console.log(item.tags)
 
 			return self.toolbelt.contains(item.tags, self.currentTags)
 
 		});
 
-		console.log("Results: " + results.length)
+		// console.log("Results: " + results.length)
 
 		results.forEach( (item, index) => {
 
