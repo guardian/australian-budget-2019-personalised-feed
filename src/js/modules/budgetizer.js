@@ -5,6 +5,8 @@ import bio_template from '../../templates/human.html'
 import { Toolbelt } from '../modules/toolbelt'
 import chroma from 'chroma-js'
 import Ractive from 'ractive'
+import fade from 'ractive-transitions-fade'
+Ractive.transitions.fade = fade
 
 export class Budgetizer {
 
@@ -41,6 +43,8 @@ export class Budgetizer {
 			item.html = self.htmlify(item.description)
 
 		});
+
+		this.storyCount = this.data.length
 
 		this.bioTags = []
 
@@ -182,7 +186,31 @@ export class Budgetizer {
 
         }
 
-        //this.filterTags() // First run... Switch oiff if template is preloaded with HTML
+        document.querySelector("#reset_tags").addEventListener('click', () => {
+
+			var tags = document.getElementsByClassName("budget");
+
+	        for (var i = 0; i < tags.length; i++) {
+
+	            tags[i].addEventListener('click', control, false);
+
+				if (!tags[i].classList.contains('active')) {
+
+					tags[i].classList.add('active')
+
+				}
+
+	        }
+
+			self.tags.forEach( (item) => {
+
+				item.active = true
+
+			});
+
+			self.filterTags();
+
+		});
 
         this.pagerank = this.data
 
@@ -298,7 +326,13 @@ export class Budgetizer {
 
 		this.pagerank = results.sort(function(a, b) { return b.pagerank - a.pagerank; });
 
-		this.ractive.set('content', self.pagerank);
+		document.querySelector("#content_count").innerHTML = `Displaying ${results.length} of ${this.storyCount} stories.`
+
+		let display = (results.length < this.storyCount) ? 'inline-block' : 'none' ;
+
+		document.querySelector("#reset_container").style.display = display
+
+		self.render();
 
 	}
 
@@ -306,9 +340,10 @@ export class Budgetizer {
 
 		var self = this
 
-		this.ractive = Ractive({
-		  	target: "#budget_content",
-		  	template: pagerank,
+		this.render = function () {
+		  var ractive = new Ractive({
+		    target: "#budget_content",
+		    template: pagerank,
 		  	data: { 
 		  		content: self.pagerank,
 				classify: function(tag) {
@@ -316,7 +351,17 @@ export class Budgetizer {
 				}
 
 		  	}
-		});
+		  });
+
+		  ractive.set('content', self.pagerank);
+
+		  ractive.on( 'reset', function () {
+		    // Teardown, then re-render once fadeouts are complete
+		    ractive.teardown( self.render );
+		  });
+		};
+
+		this.render();
 
 	}
 

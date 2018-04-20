@@ -14,6 +14,7 @@
 		text-align: center;
 		margin-bottom: 20px;
 		width: 100%;
+		line-height: 1.8rem;
 	}
 
 	#content_column {
@@ -29,6 +30,39 @@
 	    }
 
 
+	}
+
+	#reset_container {
+		width: 100%;
+		display: none;
+		text-align: center;
+		margin-top: 30px;
+		font-family: "Guardian Text Sans Web", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+		font-size: 14px;
+	}
+
+
+	#reset_tags {
+		text-align: center;
+		background-color: black;
+		line-height:40px;
+		display: inline-block;
+		border-radius: 20px;
+		padding-left: 20px;
+		padding-right: 20px;
+		color: white;
+		cursor: pointer;
+	}
+
+	#content_count {
+		width: 100%;
+		display: inline-block;
+		text-align: center;
+		margin-top: 30px;
+		font-family: "Guardian Text Sans Web", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+		font-size: 14px;
+		color: black;
+		opacity: 0.6;
 	}
 
 	#content_column h2 {

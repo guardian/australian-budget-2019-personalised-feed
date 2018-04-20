@@ -53,6 +53,7 @@
     "npm": "^5.8.0",
     "promise-polyfill": "^6.0.2",
     "ractive": "^0.10.1",
+    "ractive-transitions-fade": "^0.3.1",
     "request": "^2.81.0",
     "request-promise": "^4.2.2",
     "require-uncached": "^1.0.3",
