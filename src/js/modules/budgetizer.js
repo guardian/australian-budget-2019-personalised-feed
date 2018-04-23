@@ -99,12 +99,12 @@ export class Budgetizer {
 
 				let obj = {};
 				obj["group"] = item.group
-				obj["items"] =  [item.tag]
+				obj["items"] =  [{item: item.tag, colour: item.colour}]
 				self.bioTags.push(obj);
 
 			} else {
 
-				filtered[0].items.push(item.tag)
+				filtered[0].items.push({item: item.tag, colour: item.colour})
 
 			}
 
@@ -219,7 +219,7 @@ export class Budgetizer {
 
         }
 
-        document.querySelector("#reset_tags").addEventListener('click', () => {
+        document.querySelector("#select_all_tags").addEventListener('click', () => {
 
 			var tags = document.getElementsByClassName("budget");
 
@@ -244,6 +244,34 @@ export class Budgetizer {
 			self.filterTags();
 
 		});
+
+
+        document.querySelector("#deselect_all_tags").addEventListener('click', () => {
+
+			var tags = document.getElementsByClassName("budget");
+
+	        for (var i = 0; i < tags.length; i++) {
+
+	            tags[i].addEventListener('click', control, false);
+
+				if (tags[i].classList.contains('active')) {
+
+					tags[i].classList.remove('active')
+
+				}
+
+	        }
+
+			self.tags.forEach( (item) => {
+
+				item.active = false
+
+			});
+
+			self.filterTags();
+
+		});
+
 
         this.pagerank = this.data
 
