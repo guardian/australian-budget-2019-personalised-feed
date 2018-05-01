@@ -16,26 +16,6 @@ export class Budgetizer {
 
 		this.scale = chroma.scale(['#ff9b0b','#a60947','008ae5','#66a998','#b82266','#002c59'])
 
-		/*
-
-		this.tags = googledoc.tags
-
-		this.increment = 1 / this.tags.length 
-
-		this.pos = 0
-
-		this.tags.forEach(function(item, index) {
-
-			item.active = true
-
-			item.colour = self.scale( self.pos ).hex();
-
-			self.pos = self.pos + self.increment
-
-		})
-
-		*/
-
 		this.tags = []
 
 		this.currentTags = []
@@ -58,7 +38,11 @@ export class Budgetizer {
 
 			}
 
-			item.html = self.htmlify(item.description)
+			let status = self.htmlify(item.description, item.url, item.linktext)
+
+			item.html = status.content
+
+			item.solo = status.solo
 
 		});
 
@@ -116,13 +100,31 @@ export class Budgetizer {
 
 	}
 
-	htmlify(string) {
+	htmlify(string,url,label) {
+
+		let solo = false
 
 		var content = '<p>' + string.replace(/\n([ \t]*\n)+/g, '</p><p>').replace('\n', '<br />') + '</p>';
 
-		content = content.replace(/<\/p>/, '</p><span class="read-more-target">')
+		if (content.split("</p><p>").length > 1) {
 
-	  	return content + '</span>'
+			let finale = '</span>'
+
+			if (url!='') {
+
+				finale = '<a href="'+ url +'" target="_blank"><div class="curl">'+ label +'</div></a></span>' ;
+
+			}
+
+			content = content.replace(/<\/p>/, '</p><span class="read-more-target">') + finale
+
+		} else {
+
+			solo = true
+
+		}
+
+	  	return { content: content , solo: solo }
 
 	}
 
