@@ -98,6 +98,22 @@ export class Budgetizer {
 
 		this.prepBio()
 
+    	this.animation = this.intervalTrigger()
+
+	}
+
+	intervalTrigger() {
+
+		return window.setInterval( function() {
+
+		  var flipper = document.getElementsByClassName("flip-container");
+
+		  let random = (Math.floor(Math.random() * 4) + 1) - 1
+
+		  flipper[random].classList.toggle("hover");
+
+		}, 1500 );
+
 	}
 
 	htmlify(string,url,label) {
