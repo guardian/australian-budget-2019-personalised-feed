@@ -17,6 +17,10 @@ export class Budgetizer {
 
 		this.scale = chroma.scale(['#ff9b0b','#a60947','008ae5','#66a998','#b82266','#002c59'])
 
+		this.flipBuffet = ['slide9','slide10','slide11','slide12','slide13','slide14','slide15','slide16','slide17','slide18','slide19']
+
+		this.flipCurrent = ['slide1','slide2','slide3','slide4','slide5','slide6','slide7','slide8']
+
 		this.tags = []
 
 		this.currentTags = []
@@ -107,13 +111,57 @@ export class Budgetizer {
 
 	intervalTrigger() {
 
+		var self = this
+
 		return window.setInterval( function() {
 
-		  var flipper = document.getElementsByClassName("flip-container");
+			var flipper = document.getElementsByClassName("flip-container")
 
-		  let random = (Math.floor(Math.random() * 4) + 1) - 1
+			let random = (Math.floor(Math.random() * 4) + 1) - 1
 
-		  flipper[random].classList.toggle("hover");
+			let front = flipper[random].getAttribute('data-front')
+
+			let back = flipper[random].getAttribute('data-back')
+
+			let id = ''
+
+			let fo = ''
+
+			let fn = self.flipBuffet[0]
+
+			self.flipBuffet.shift(); // First item from array
+
+			if (flipper[random].classList.contains('hover')) {
+
+				id = 'fb' + random
+
+				fo = back
+
+				flipper[random].setAttribute("data-back", fn);
+
+			} else {
+
+				id = 'ff' + random
+
+				fo = front
+
+				flipper[random].setAttribute("data-front", fn);
+
+			}
+
+			var index = self.flipCurrent.indexOf(fo);
+
+			if (index !== -1) self.flipCurrent.splice(index, 1);
+
+			self.flipBuffet.push(fo)
+
+			self.flipCurrent.push(fn)
+
+			flipper[random].classList.toggle("hover");
+
+			document.querySelector("#" + id).classList.remove(fo);
+
+			document.querySelector("#" + id).classList.add(fn);
 
 		}, 1500 );
 
@@ -314,8 +362,6 @@ export class Budgetizer {
 
 		let compiledHTML = template(footerData);
 
-		console.log(compiledHTML);
-
 		document.querySelector("#footer").innerHTML = compiledHTML
 
 		this.ractivate()
@@ -395,8 +441,6 @@ export class Budgetizer {
 		// console.log(self.currentTags)
 
 		var results 
-
-
 
 		if (self.currentTags.length === 0) {
 
