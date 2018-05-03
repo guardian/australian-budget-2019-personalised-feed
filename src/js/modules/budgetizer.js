@@ -2,6 +2,7 @@ import Handlebars from 'handlebars/dist/handlebars'
 import tags_template from '../../templates/tags.html'
 import pagerank from '../../templates/contented.html'
 import bio_template from '../../templates/human.html'
+import footer_template from '../../templates/footer.html'
 import { Toolbelt } from '../modules/toolbelt'
 import chroma from 'chroma-js'
 import Ractive from 'ractive'
@@ -93,6 +94,8 @@ export class Budgetizer {
 			}
 
 		});
+
+		this.footer = googledoc.footer
 
 		this.toolbelt = new Toolbelt();
 
@@ -293,7 +296,29 @@ export class Budgetizer {
 
         this.pagerank = this.data
 
-        this.ractivate()
+        this.prepFooter()
+
+	}
+
+	prepFooter() {
+
+		var self = this
+
+	    let footerData = {
+
+	      story: self.footer
+
+	    };
+
+		let template = Handlebars.compile(footer_template);
+
+		let compiledHTML = template(footerData);
+
+		console.log(compiledHTML);
+
+		document.querySelector("#footer").innerHTML = compiledHTML
+
+		this.ractivate()
 
 	}
 
