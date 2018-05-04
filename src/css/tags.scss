@@ -3,20 +3,21 @@
 #budget_tags {
 	font-family: "Guardian Text Sans Web", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
 	font-weight: 700;
-	max-width: 660px;
 	margin: auto;
-	text-align: left;
-	
+	text-align: center;
 
-    @include mq($from: mobile, $until: desktop) {
+    @include mq($until: desktop) {
         display: inline-block;
     }
 
+    @include mq($from: desktop) {
+        max-width: 700px;
+    }
 
 }
 
 #budget_tags h2 {
-	text-align: left;
+	text-align: center;
 }
 
 #budget_tags ul {
@@ -28,8 +29,7 @@
 }
 
 #budget_tags ul li {
-	display: block;
-	float: left;
+	display: inline-block;
 	margin-right: 5px;
 	margin-bottom: 5px;
 	padding: 10px;
@@ -51,15 +51,16 @@
 
 .tag_column {
 
-	float: right;
-	margin-right: 20px;
+	float: left;
 
     @include mq($from: mobile, $until: desktop) {
         display: none;
     }
 
     @include mq($from: desktop) {
-        display: inline-block;
+        width: calc(30% - 20px);
+        max-width: 150px;
+        margin-right: 20px;
     }
 
 }
@@ -76,7 +77,6 @@
 }
 
 .tag_column ul li {
-	float: left;
 	margin-right: 5px;
 	margin-bottom: 5px;
 	padding-right: 10px;

@@ -2,20 +2,23 @@
 
 #header_shizzle {
 	width: 100%;
+    display: inline-block;
 }
 
 .flip-container {
 	
 	height: 0px;
+    display: block;
+    margin-right: -0.5px;
 
     @include mq($until: tablet) {
     	width: 33.33%;
-    	padding-bottom: 25%;
+    	padding-bottom: 20%;
     }
 
     @include mq($from: tablet) {
     	width: 25%;
-    	padding-bottom: 18%;
+    	padding-bottom: 16.45%;
     }
 
 }
@@ -51,10 +54,12 @@
 	transform: rotateX(180deg)
 }
 .flipper-front, .flipper-back {
+    float: left;
 	width: 100%;
 	height: 0px;
 	padding-bottom: 66%;
 	background-size:100%;
+    background-color: lightgrey;
 }
 .flipper {
 	-webkit-transition: 0.6s;

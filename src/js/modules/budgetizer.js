@@ -39,7 +39,7 @@ export class Budgetizer {
 
 				let tag = arr[i].trim()
 
-				tags.indexOf(tag) === -1 && tag != '' ? tags.push(tag) : '';
+				tags.indexOf(tag) === -1 && tag != '' ? tags.push(tag) : ''; 
 
 			}
 
@@ -517,9 +517,8 @@ export class Budgetizer {
 		  	data: { 
 		  		content: self.pagerank,
 				classify: function(tag) {
-				  return 'tag' + ( (self.toolbelt.contains(tag, self.currentTags)) ? ' active' : '') ;
+				  return (self.currentTags.length===0) ? 'tag active' : 'tag' + ( (self.toolbelt.contains(tag, self.currentTags)) ? ' active' : '') ;
 				}
-
 		  	}
 		  });
 

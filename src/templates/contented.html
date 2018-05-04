@@ -1,6 +1,18 @@
 <div>
 	{{#each content}}
 
+	<div class="story_block_container">
+
+		<div class="tag_column" fade-in="500" fade-out="500">
+
+			<ul>
+				{{#each cats}}
+				<li class="{{classify(this)}}">{{this}}</li>
+				{{/each}}
+			</ul>
+
+		</div>
+
 		<div class="story_block column" fade-in="500" fade-out="500">
 
 			<h2>{{item}}</h2>
@@ -33,15 +45,9 @@
 
 		</div>
 
-		<div class="tag_column" fade-in="500" fade-out="500">
 
-			<ul>
-				{{#each cats}}
-				<li class="{{classify(this)}}">{{this}}</li>
-				{{/each}}
-			</ul>
 
-		</div>
+	</div>
 
 	{{/each}}
 

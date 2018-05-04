@@ -62,10 +62,7 @@
 		text-align: center;
 		font-family: "Guardian Text Sans Web", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
 		font-size: 14px;
-
-	    @include mq($from: desktop) {
-	        margin-top: 20px;
-	    }
+	    margin-top: 20px;
 
 	}
 
@@ -90,11 +87,6 @@
 		color: black;
 		opacity: 0.6;
 		margin-top: 20px;
-	}
-
-	.humanism {
-		display: inline-block;
-		width: 100%;
 	}
 
 	#content_column h2 {
@@ -151,6 +143,12 @@
 
 
 	}
+
+	.humanism {
+		display: inline-block;
+		width: 100%;
+	}
+
 
 	.human {
 		width: 100%;
