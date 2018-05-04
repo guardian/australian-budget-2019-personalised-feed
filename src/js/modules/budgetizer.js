@@ -500,6 +500,8 @@ export class Budgetizer {
 
 		let display = (results.length < this.storyCount) ? 'inline-block' : 'none' ;
 
+		document.querySelector("#content_loaded").style.display = 'block'
+
 		document.querySelector("#reset_container").style.display = display
 
 		self.render();

@@ -22,6 +22,7 @@
 		max-width:680px;
 		margin: auto;
 		margin-top: 20px;
+		margin-bottom: 20px;
 
 	    @include mq($from: mobile, $until: desktop) {
 	        padding-left: 20px;
