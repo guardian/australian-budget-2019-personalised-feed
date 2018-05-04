@@ -52,6 +52,7 @@
 .tag_column {
 
 	float: left;
+	padding-top: 20px;
 
     @include mq($from: mobile, $until: desktop) {
         display: none;

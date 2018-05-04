@@ -9,7 +9,6 @@
 		font-size: 3rem;
 		margin-top: 20px;
 		line-height: 3.4rem;
-		margin-bottom:20px;
 
 	    @include mq($from: mobile, $until: desktop) {
 	        padding-left: 20px;
@@ -20,11 +19,9 @@
 
 	.subTitle {
 		text-align: left;
-		font-size:1rem;
 		max-width:680px;
 		margin: auto;
 		margin-top: 20px;
-		margin-bottom: 20px;
 
 	    @include mq($from: mobile, $until: desktop) {
 	        padding-left: 20px;
@@ -37,8 +34,11 @@
 		text-align: center;
 		margin-bottom: 20px;
 		width: 100%;
-		line-height: 1.8rem;
 
+	}
+
+	.story_block h2 {
+		margin-bottom: 0px;
 	}
 
 	#content_column {
