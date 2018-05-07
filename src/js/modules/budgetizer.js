@@ -27,7 +27,11 @@ export class Budgetizer {
 
 		var tags = []
 
-		this.data = googledoc.data
+		this.data = googledoc.data.filter( (value) => {
+
+				return value.status === 'confirmed'
+
+			});
 
 		this.data.forEach(function(item, index) {
 
@@ -105,8 +109,6 @@ export class Budgetizer {
 
 		this.prepBio()
 
-    	this.animation = this.intervalTrigger()
-
 	}
 
 	intervalTrigger() {
@@ -180,6 +182,10 @@ export class Budgetizer {
 			if (url!='') {
 
 				finale = '<a href="'+ url +'" target="_blank"><div class="curl">'+ label +'</div></a></span>' ;
+
+			} else {
+
+				finale = '<div class="supplental">' + label + '</div>'
 
 			}
 
@@ -344,7 +350,7 @@ export class Budgetizer {
 
         this.pagerank = this.data
 
-        this.prepFooter()
+        this.ractivate()
 
 	}
 
@@ -364,7 +370,6 @@ export class Budgetizer {
 
 		document.querySelector("#footer").innerHTML = compiledHTML
 
-		this.ractivate()
 
 	}
 
@@ -533,6 +538,41 @@ export class Budgetizer {
 		};
 
 		this.filterTags();
+
+		this.prepFooter();
+
+		this.preload()
+
+	}  
+
+	preload() {
+
+		var self = this
+
+		this.imageSequence = []
+
+		let size = getComputedStyle(document.querySelector('#prechecker'), ':before').getPropertyValue('content');
+
+		console.log(size)
+
+		var dir = (size==='small') ? '110/' : 
+			(size==='medium') ? '220/' : '' ;
+
+		let images = [1,2,3,4,5,6,8,9,10,11,12,13,14,15,16,17,18,19,20]
+
+		for (var i = 0; i < images.length; i++) {
+
+			var url = "https://interactive.guim.co.uk/2018/04/budget-vox-pix/" + dir  + 'budget-sign-' + images[i] + '.jpg'
+
+			var img = new Image();
+
+			img.src = url;
+
+			self.imageSequence.push(img)
+
+		}
+
+		this.animation = this.intervalTrigger()
 
 	}
 

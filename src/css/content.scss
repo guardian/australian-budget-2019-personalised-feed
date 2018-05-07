@@ -85,6 +85,13 @@
   border-radius: .25em;
 }
 
+.supplental {
+  margin-bottom: 10px;
+  font-family: 'Guardian Text Sans Web', 'Agate Sans', sans-serif; 
+  font-size: 14px;
+  color: #636363 !important;
+}
+
 .curl {
   cursor: pointer;
   display: inline-block;
@@ -111,4 +118,21 @@
   float: right;
   margin-left: 10px;
   margin-top: 5px;
+}
+
+#prechecker:before {
+
+  display: none;
+
+    @include mq($until: mobile) {
+      content: 'small';
+    }
+
+    @include mq($from: mobile, $until: tablet) {
+      content: 'medium';
+    }
+
+    @include mq($from: tablet) {
+      content: 'large';
+    }
 }
