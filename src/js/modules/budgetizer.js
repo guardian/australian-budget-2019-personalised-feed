@@ -11,12 +11,15 @@ import xr from 'xr';
 import share from '../modules/share'
 import moment from 'moment'
 Ractive.transitions.fade = fade
+Ractive.DEBUG = false;
 
 export class Budgetizer {
 
 	constructor(googledoc) {
 
 		var self = this
+
+		this.preliminary = true
 
 		this.previous = JSON.stringify(googledoc);
 
@@ -124,21 +127,113 @@ export class Budgetizer {
 
 			xr.get('https://interactive.guim.co.uk/docsdata/1IKIp4NOuOfOwaduHiutgTvc55joO3DElR3W0k4aAHPU.json').then((resp) => {
 
+				document.querySelector("#update_time").innerHTML = 'UPDATED: ' + moment().format('dddd, MMMM Do YYYY, h:mm a');
+
 	            if (self.previous != JSON.stringify(resp.data.sheets)) {
 
-	                console.log('Refresh it like a total gangsta');
+	            	console.log("Boom")
 
-	                document.querySelector("#update_time").innerHTML = 'UPDATED: ' + moment().format('dddd, MMMM Do YYYY, h:mm a');
+	            	self.previous = JSON.stringify(resp.data.sheets)               
 
-	                self.previous = JSON.stringify(resp.data.sheets)
+					var tags = []
 
-	            } else {
-	            	console.log("The JSON remains the same")
+					var data = resp.data.sheets.data.filter( (value) => {
+
+							return value.status === 'confirmed'
+
+						});
+
+					data.forEach(function(item, index) {
+
+						let arr = item.tags.split(','); 
+
+						item.cats = arr
+
+						for (var i = 0; i < arr.length; i++) {
+
+							let tag = arr[i].trim()
+
+							tags.indexOf(tag) === -1 && tag != '' ? tags.push(tag) : ''; 
+
+						}
+
+						let status = self.htmlify(item.description, item.url, item.linktext)
+
+						item.html = status.content
+
+						item.solo = status.solo
+
+					});
+
+					self.increment = 1 / tags.length 
+
+					self.pos = 0
+
+					self.tags = []
+
+					for (var i = 0; i < tags.length; i++) {
+
+						let obj = {}
+						obj.tag = tags[i]
+						obj.active = self.toolbelt.contains(self.currentTags, tags[i])
+						obj.colour = self.scale( self.pos ).hex();
+						self.pos = self.pos + self.increment
+						self.tags.push(obj)
+
+					}
+
+					self.storyCount = data.length
+
+					self.data = data
+
+				    let tagsData = {
+
+				      tags: self.tags
+
+				    };
+
+					let template = Handlebars.compile(tags_template);
+
+					let compiledHTML = template(tagsData);
+
+					document.querySelector("#budget_tags").innerHTML = compiledHTML
+
+			        var tags = document.getElementsByClassName("budget");
+
+			        var control = function() {
+
+			            let target = this.getAttribute('data-tag');
+
+			            if (this.classList.contains('active')) {
+
+			            	this.classList.remove('active')
+
+			            	self.updateTags(target, false)
+
+			            } else {
+
+			            	this.classList.add('active')
+
+			            	self.updateTags(target, true)
+
+			            }
+
+			        };
+
+			        for (var i = 0; i < tags.length; i++) {
+
+			            tags[i].addEventListener('click', control, false);
+
+			        }
+
+			        self.filterTags();
+	                
+
 	            }
 	            
 			});
 
-		}, 15000 );
+		}, 120000 );
 
 	}
 
@@ -379,9 +474,9 @@ export class Budgetizer {
 		});
 
 
-        this.pagerank = this.data
+    	this.pagerank = this.data
 
-        this.ractivate()
+    	this.ractivate()
 
 	}
 
