@@ -127,7 +127,7 @@ export class Budgetizer {
 
 			xr.get('https://interactive.guim.co.uk/docsdata/1IKIp4NOuOfOwaduHiutgTvc55joO3DElR3W0k4aAHPU.json').then((resp) => {
 
-				document.querySelector("#update_time").innerHTML = 'UPDATED: ' + moment().format('dddd, MMMM Do YYYY, h:mm a');
+				document.querySelector("#update_time").innerHTML = moment().format('ddd, MMM Do, h:mm a');
 
 	            if (self.previous != JSON.stringify(resp.data.sheets)) {
 
@@ -702,7 +702,7 @@ export class Budgetizer {
 
 		this.updater = this.updateFeed()
 
-		document.querySelector("#update_time").innerHTML = 'UPDATED: ' + moment().format('dddd, MMMM Do YYYY, h:mm a');
+		document.querySelector("#update_time").innerHTML = moment().format('ddd, MMM Do, h:mm a');
 
 		this.social()
 
