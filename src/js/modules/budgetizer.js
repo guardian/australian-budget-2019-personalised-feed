@@ -9,6 +9,7 @@ import Ractive from 'ractive'
 import fade from 'ractive-transitions-fade'
 import xr from 'xr';
 import share from '../modules/share'
+import moment from 'moment'
 Ractive.transitions.fade = fade
 
 export class Budgetizer {
@@ -17,7 +18,7 @@ export class Budgetizer {
 
 		var self = this
 
-		this.previous = googledoc
+		this.previous = JSON.stringify(googledoc);
 
 		this.scale = chroma.scale(['#ff9b0b','#a60947','008ae5','#66a998','#b82266','#002c59'])
 
@@ -123,15 +124,18 @@ export class Budgetizer {
 
 			xr.get('https://interactive.guim.co.uk/docsdata/1IKIp4NOuOfOwaduHiutgTvc55joO3DElR3W0k4aAHPU.json').then((resp) => {
 
-				console.log(self.previous)
-				console.log(resp.data.sheets)
+	            if (self.previous != JSON.stringify(resp.data.sheets)) {
 
-	            if (self.previous != resp.data.sheets) {
 	                console.log('Refresh it like a total gangsta');
+
+	                document.querySelector("#update_time").innerHTML = 'UPDATED: ' + moment().format('dddd, MMMM Do YYYY, h:mm a');
+
+	                self.previous = JSON.stringify(resp.data.sheets)
+
 	            } else {
-	            	console.log('Same same but different');
+	            	console.log("The JSON remains the same")
 	            }
-	            self.previous = resp.data.sheets;
+	            
 			});
 
 		}, 15000 );
@@ -603,6 +607,8 @@ export class Budgetizer {
 
 		this.updater = this.updateFeed()
 
+		document.querySelector("#update_time").innerHTML = 'UPDATED: ' + moment().format('dddd, MMMM Do YYYY, h:mm a');
+
 		this.social()
 
 	}
@@ -625,7 +631,7 @@ export class Budgetizer {
 
 		var title = "The complete 2018 budget: choose what matters to you";
 
-		var shareFn = share(title, self.getShareUrl(), null, null, '#Budget2018,#auspol');
+		var shareFn = share(title, self.getShareUrl(), null, null, '#Budget2018 #auspol');
 
 		document.querySelector("#zucker").addEventListener('click',() => shareFn('facebook'));
 

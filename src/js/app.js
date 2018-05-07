@@ -8,4 +8,3 @@ xr.get('https://interactive.guim.co.uk/docsdata/1IKIp4NOuOfOwaduHiutgTvc55joO3DE
 	new Budgetizer(googledoc)
 });
 
-

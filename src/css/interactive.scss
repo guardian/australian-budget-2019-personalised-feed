@@ -91,6 +91,20 @@
 		margin-top: 20px;
 	}
 
+	#update_time {
+		float: left;
+		font-family: "Guardian Text Sans Web", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+		text-align: left;
+		font-size: 14px;
+		color: black;
+		opacity: 0.6;
+		height: 30px;
+		line-height: 30px;
+		margin-left: 10px;
+		border-left: 1px solid darkgrey;
+		padding-left: 10px;
+	}
+
 	#content_column h2 {
 		width: 100%;
 		display: inline-block;
