@@ -7,6 +7,8 @@ import { Toolbelt } from '../modules/toolbelt'
 import chroma from 'chroma-js'
 import Ractive from 'ractive'
 import fade from 'ractive-transitions-fade'
+import xr from 'xr';
+import share from '../modules/share'
 Ractive.transitions.fade = fade
 
 export class Budgetizer {
@@ -14,6 +16,8 @@ export class Budgetizer {
 	constructor(googledoc) {
 
 		var self = this
+
+		this.previous = googledoc
 
 		this.scale = chroma.scale(['#ff9b0b','#a60947','008ae5','#66a998','#b82266','#002c59'])
 
@@ -108,6 +112,29 @@ export class Budgetizer {
 		this.toolbelt = new Toolbelt();
 
 		this.prepBio()
+
+	}
+
+	updateFeed() {
+
+		var self = this
+
+		return window.setInterval( function() {
+
+			xr.get('https://interactive.guim.co.uk/docsdata/1IKIp4NOuOfOwaduHiutgTvc55joO3DElR3W0k4aAHPU.json').then((resp) => {
+
+				console.log(self.previous)
+				console.log(resp.data.sheets)
+
+	            if (self.previous != resp.data.sheets) {
+	                console.log('Refresh it like a total gangsta');
+	            } else {
+	            	console.log('Same same but different');
+	            }
+	            self.previous = resp.data.sheets;
+			});
+
+		}, 15000 );
 
 	}
 
@@ -573,6 +600,36 @@ export class Budgetizer {
 		}
 
 		this.animation = this.intervalTrigger()
+
+		this.updater = this.updateFeed()
+
+		this.social()
+
+	}
+
+	getShareUrl() { 
+
+		var isInIframe = (parent !== window);
+		var parentUrl = null;
+		var shareUrl = (isInIframe) ? document.referrer : window.location.href;
+		shareUrl = shareUrl.split('?')[0]
+		return shareUrl;
+
+	}
+
+	social() {
+
+		var self = this
+
+		// title, shareURL, fbImg, twImg, hashTag
+
+		var title = "The complete 2018 budget: choose what matters to you";
+
+		var shareFn = share(title, self.getShareUrl(), null, null, '#Budget2018,#auspol');
+
+		document.querySelector("#zucker").addEventListener('click',() => shareFn('facebook'));
+
+		document.querySelector("#twitter").addEventListener('click',() => shareFn('twitter'));
 
 	}
 
