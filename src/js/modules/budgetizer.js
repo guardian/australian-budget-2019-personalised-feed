@@ -588,11 +588,9 @@ export class Budgetizer {
 
 		// console.log("Number of stories: " + this.data.length)
 
-		// console.log(self.currentTags)
-
 		var results 
 
-		if (self.currentTags.length === 0) {
+		if (self.currentTags.length === 0 || self.currentTags.length === self.tags.length) {
 
 			results = this.data
 
@@ -600,15 +598,17 @@ export class Budgetizer {
 
 			results = this.data.filter( (item) => {
 
-				//console.log(item.tags)
-
 				return self.toolbelt.contains(item.tags, self.currentTags)
 
 			});
 
 		}
 
-		// console.log("Results: " + results.length)
+		//console.log(self.tags.length)
+
+		//console.log(self.currentTags.length)
+
+		//console.log("Results: " + results.length)
 
 		results.forEach( (item, index) => {
 
