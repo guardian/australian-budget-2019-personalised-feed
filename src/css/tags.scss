@@ -89,8 +89,10 @@
     display: block;
 }
 
-.tag_column ul li span .newbeat {
-	colour: red;
+.tag_column ul li.active span.newbeat {
+	color: white;
+	background-color: red;
+	padding: 2px;
 }
 
 .web_redirect {
