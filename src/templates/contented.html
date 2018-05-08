@@ -7,8 +7,11 @@
 
 			<ul>
 				{{#each cats}}
-				<li class="{{classify(this)}}">{{this}}</li>
+					{{#if exists}} <li class="{{classify(this)}}">{{this}}</li> {{else}} <li class="{{classify(this)}}">{{this}} <span class="newbeat">NEW</span></li>{{/if}}
 				{{/each}}
+
+				
+
 			</ul>
 
 		</div>

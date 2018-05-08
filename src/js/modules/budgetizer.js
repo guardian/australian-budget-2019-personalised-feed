@@ -33,6 +33,8 @@ export class Budgetizer {
 
 		this.currentTags = []
 
+		this.memory = []
+
 		var tags = []
 
 		this.data = googledoc.data.filter( (value) => {
@@ -42,6 +44,12 @@ export class Budgetizer {
 			});
 
 		this.data.forEach(function(item, index) {
+
+			item.id = +item.id
+
+			self.memory.push(item.id)
+
+			item.exists = true
 
 			let arr = item.tags.split(','); 
 
@@ -144,6 +152,22 @@ export class Budgetizer {
 						});
 
 					data.forEach(function(item, index) {
+
+						item.id = +item.id
+
+						item.exists = self.toolbelt.contains(self.memory, item.id)
+
+						self.memory.indexOf(item.id) === -1 && item.id != '' ? self.memory.push(item.id) : ''; 
+
+						/*
+
+						item.id = +item.id
+
+						self.memory.push(item.id)
+
+						item.new = false
+
+						*/
 
 						let arr = item.tags.split(','); 
 
