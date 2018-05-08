@@ -7,10 +7,10 @@
 
 			<ul>
 				{{#each cats}}
-					{{#if exists}} <li class="{{classify(this)}}">{{this}}</li> {{else}} <li class="{{classify(this)}}">{{this}} <span class="newbeat">NEW</span></li>{{/if}}
+					<li class="{{classify(this)}}">{{this}}</li>
 				{{/each}}
 
-				
+				{{#if exists}}{{else}}<li class="tab active"><span class="newbeat">NEW</span></li>{{/if}}
 
 			</ul>
 

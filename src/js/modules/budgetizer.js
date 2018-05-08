@@ -21,7 +21,7 @@ export class Budgetizer {
 
 		this.preliminary = true
 
-		this.previous = JSON.stringify(googledoc);
+		this.previous = JSON.stringify(googledoc.data);
 
 		this.scale = chroma.scale(['#ff9b0b','#a60947','008ae5','#66a998','#b82266','#002c59'])
 
@@ -133,19 +133,25 @@ export class Budgetizer {
 
 		return window.setInterval( function() {
 
-			xr.get('https://interactive.guim.co.uk/docsdata/1IKIp4NOuOfOwaduHiutgTvc55joO3DElR3W0k4aAHPU.json').then((resp) => {
+			var key = '1IKIp4NOuOfOwaduHiutgTvc55joO3DElR3W0k4aAHPU' // The actual data
+
+			//var key = '1eJQ-D80oBr9f9a4ii0nCrh7Wh-ULiv05MZjaTDqgO-s' // Testing 1 2 3
+
+			xr.get('https://interactive.guim.co.uk/docsdata/' + key + '.json?ga=' + new Date().getTime()).then((resp) => {
 
 				document.querySelector("#update_time").innerHTML = moment().format('ddd, MMM Do, h:mm a');
 
-	            if (self.previous != JSON.stringify(resp.data.sheets)) {
+				let json = resp.data.sheets.data
 
-	            	console.log("Boom")
+	            if (self.previous !== JSON.stringify(json)) {
 
-	            	self.previous = JSON.stringify(resp.data.sheets)               
+	            	console.log("New content")
+
+	            	self.previous = JSON.stringify(json)               
 
 					var tags = []
 
-					var data = resp.data.sheets.data.filter( (value) => {
+					var data = json.filter( (value) => {
 
 							return value.status === 'confirmed'
 
@@ -158,16 +164,6 @@ export class Budgetizer {
 						item.exists = self.toolbelt.contains(self.memory, item.id)
 
 						self.memory.indexOf(item.id) === -1 && item.id != '' ? self.memory.push(item.id) : ''; 
-
-						/*
-
-						item.id = +item.id
-
-						self.memory.push(item.id)
-
-						item.new = false
-
-						*/
 
 						let arr = item.tags.split(','); 
 
@@ -252,7 +248,6 @@ export class Budgetizer {
 
 			        self.filterTags();
 	                
-
 	            }
 	            
 			});
