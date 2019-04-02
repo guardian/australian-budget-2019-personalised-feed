@@ -17,4 +17,18 @@
 .element-atom,
 .interactive-atom {
     margin: 0 !important;
+
+}
+
+#app {
+	
+	@media (min-width: 980px) {
+
+		#headline {
+		    margin-left: 5%;
+    		margin-right: 5%;
+		}
+
+	}
+	
 }

@@ -133,13 +133,13 @@ export class Budgetizer {
 
 		return window.setInterval( function() {
 
-			var key = '1IKIp4NOuOfOwaduHiutgTvc55joO3DElR3W0k4aAHPU' // The actual data
+			var key = '1q7sAZUHXJYL0MDgK98wy-3-RXfG8cofrBJPUk_f67xA' // The actual data
 
 			//var key = '1eJQ-D80oBr9f9a4ii0nCrh7Wh-ULiv05MZjaTDqgO-s' // Testing 1 2 3
 
 			xr.get('https://interactive.guim.co.uk/docsdata/' + key + '.json?ga=' + new Date().getTime()).then((resp) => {
 
-				document.querySelector("#update_time").innerHTML = moment().format('ddd, MMM Do, h:mm a');
+				document.querySelector("#update_time").innerHTML = "Updated: " + moment().format('ddd, MMM Do, h:mm a');
 
 				let json = resp.data.sheets.data
 
@@ -721,7 +721,7 @@ export class Budgetizer {
 
 		this.updater = this.updateFeed()
 
-		document.querySelector("#update_time").innerHTML = moment().format('ddd, MMM Do, h:mm a');
+		document.querySelector("#update_time").innerHTML = "Updated: " + moment().format('ddd, MMM Do, h:mm a');
 
 		this.social()
 
@@ -743,9 +743,9 @@ export class Budgetizer {
 
 		// title, shareURL, fbImg, twImg, hashTag
 
-		var title = "The complete 2018 budget: choose what matters to you";
+		var title = "The complete 2019 Australian budget: choose what matters to you";
 
-		var shareFn = share(title, self.getShareUrl(), null, null, '#Budget2018 #auspol');
+		var shareFn = share(title, self.getShareUrl(), null, null, '#Budget2019 #auspol');
 
 		document.querySelector("#zucker").addEventListener('click',() => shareFn('facebook'));
 
