@@ -1,11 +1,8 @@
-import Handlebars from 'handlebars/dist/handlebars'
-import tags_template from '../../templates/tags.html'
-import pagerank from '../../templates/contented.html'
-import bio_template from '../../templates/human.html'
-import footer_template from '../../templates/footer.html'
+import template from '../../templates/template.html'
 import { Toolbelt } from '../modules/toolbelt'
 import chroma from 'chroma-js'
 import Ractive from 'ractive'
+import ractiveTap from 'ractive-events-tap'
 import fade from 'ractive-transitions-fade'
 import xr from 'xr';
 import share from '../modules/share'
@@ -15,15 +12,21 @@ Ractive.DEBUG = false;
 
 export class Budgetizer {
 
-	constructor(googledoc) {
+	constructor(googledoc, key, year, socialization) {
 
 		var self = this
+
+		this.key = key
+
+		this.socialization = socialization[0]
+
+		this.toolbelt = new Toolbelt();
 
 		this.preliminary = true
 
 		this.previous = JSON.stringify(googledoc.data);
 
-		this.scale = chroma.scale(['#ff9b0b','#a60947','008ae5','#66a998','#b82266','#002c59'])
+		this.scale = chroma.scale(['#ff9b0b','#a60947','#008ae5','#66a998','#b82266','#002c59'])
 
 		this.flipBuffet = ['slide9','slide10','slide11','slide12','slide13','slide14','slide15','slide16','slide17','slide18','slide19']
 
@@ -35,13 +38,57 @@ export class Budgetizer {
 
 		this.memory = []
 
+		this.bioTags = []
+
+		this.currentBioTags = []
+
+		this.data = googledoc.data.filter( (value) => value.status === 'confirmed')
+
+		this.storyCount = this.data.length
+
+		this.bio = googledoc.bio
+
+		this.database = {
+
+			year: year,
+
+			biotags: [],
+
+			bio: [],
+
+			tags: [],
+
+			content: [],
+
+			footer : googledoc.footer,
+
+			updated: moment().format('ddd, MMM Do, h:mm a'),
+
+			total: self.data.length,
+
+			results: self.data.length,
+
+			showSelectAll: true,
+
+			showDeselectAll: false,
+
+			classify: function(tag) {
+
+			  return (self.currentTags.length===0) ? 'tag active' : 'tag' + ( (self.toolbelt.contains(tag, self.currentTags)) ? ' active' : '') ;
+			
+			}
+
+		}
+
+		this.init()
+
+	}
+
+	init() {
+
+		var self = this
+
 		var tags = []
-
-		this.data = googledoc.data.filter( (value) => {
-
-				return value.status === 'confirmed'
-
-			});
 
 		this.data.forEach(function(item, index) {
 
@@ -71,188 +118,151 @@ export class Budgetizer {
 
 		});
 
-		this.increment = 1 / tags.length 
+		let increment = 1 / tags.length 
 
-		this.pos = 0
+		let pos = 0
 
-		for (var i = 0; i < tags.length; i++) {
+		for (let i = 0; i < tags.length; i++) {
 
 			let obj = {}
 			obj.tag = tags[i]
 			obj.active = false
-			obj.colour = self.scale( self.pos ).hex();
-			self.pos = self.pos + self.increment
+			obj.colour = self.scale( pos ).hex();
+			pos = pos + increment
 			this.tags.push(obj)
 
 		}
-
-		this.storyCount = this.data.length
-
-		this.bioTags = []
-
-		this.currentBioTags = []
-
-		this.bio = googledoc.bio
 
 		this.bio.forEach(function(item, index) {
 
 			item.active = false
 
-			let filtered = self.bioTags.filter( (value) => {
-
-				return value.group === item.group
-
-			});
+			let filtered = self.bioTags.filter( (value) => value.group === item.group);
 
 			if (filtered.length === 0) {
 
 				let obj = {};
+				obj["gid"] = self.bioTags.length
 				obj["group"] = item.group
-				obj["items"] =  [{item: item.tag, colour: item.colour}]
+				obj["items"] =  [{group: item.group, item: item.tag, colour: item.colour, active: false }]
 				self.bioTags.push(obj);
 
 			} else {
 
-				filtered[0].items.push({item: item.tag, colour: item.colour})
+				filtered[0].items.push({group: item.group, item: item.tag, colour: item.colour, active: false})
 
 			}
 
 		});
 
-		this.footer = googledoc.footer
+		this.database.biotags = self.bioTags
 
-		this.toolbelt = new Toolbelt();
+		this.database.bio = self.bio
 
-		this.prepBio()
+		this.database.tags = self.tags
+
+		this.database.content = self.data
+
+		this.ractivate()
 
 	}
 
-	updateFeed() {
+	ractivate() {
 
 		var self = this
 
-		return window.setInterval( function() {
+        this.ractive = new Ractive({
+            events: { 
+                tap: ractiveTap,
+            },
+            el: '#app',
+            data: self.database,
+            template: template,
+        })
 
-			var key = '1q7sAZUHXJYL0MDgK98wy-3-RXfG8cofrBJPUk_f67xA' // The actual data
+        this.ractive.on('selecticle', (context) => {
 
-			//var key = '1eJQ-D80oBr9f9a4ii0nCrh7Wh-ULiv05MZjaTDqgO-s' // Testing 1 2 3
+			self.database.tags.forEach( (item) => item.active = true);
 
-			xr.get('https://interactive.guim.co.uk/docsdata/' + key + '.json?ga=' + new Date().getTime()).then((resp) => {
+			self.database.showSelectAll = false
 
-				document.querySelector("#update_time").innerHTML = "Updated: " + moment().format('ddd, MMM Do, h:mm a');
+			self.database.showDeselectAll = true
 
-				let json = resp.data.sheets.data
+			self.filterTags();
 
-	            if (self.previous !== JSON.stringify(json)) {
+        })
 
-	            	console.log("New content")
+        this.ractive.on('deselecticle', (context) => {
 
-	            	self.previous = JSON.stringify(json)               
+			self.database.tags.forEach( (item) => item.active = false );
 
-					var tags = []
+			self.database.showSelectAll = true
 
-					var data = json.filter( (value) => {
+			self.database.showDeselectAll = false
 
-							return value.status === 'confirmed'
+			self.filterTags();
 
-						});
+        })
 
-					data.forEach(function(item, index) {
+        this.ractive.on('biotag', (context, tag, group) => {
 
-						item.id = +item.id
+        	var status = (context.node.classList.contains('active')) ? false : true ;
 
-						item.exists = self.toolbelt.contains(self.memory, item.id)
+        	self.updateBioTags(tag, status, group)
 
-						self.memory.indexOf(item.id) === -1 && item.id != '' ? self.memory.push(item.id) : ''; 
+        })
 
-						let arr = item.tags.split(','); 
+        this.ractive.on('budget', (context, tag) => {
 
-						item.cats = arr
+        	var status = (context.node.classList.contains('active')) ? false : true ;
 
-						for (var i = 0; i < arr.length; i++) {
+        	self.updateTags(tag, status)
 
-							let tag = arr[i].trim()
+        })
 
-							tags.indexOf(tag) === -1 && tag != '' ? tags.push(tag) : ''; 
+		this.preload()
 
-						}
+	}  
 
-						let status = self.htmlify(item.description, item.url, item.linktext)
+	preload() {
 
-						item.html = status.content
+		var self = this
 
-						item.solo = status.solo
+		this.imageSequence = []
 
-					});
+		const dir = '220/'
 
-					self.increment = 1 / tags.length 
+		let images = [1,2,3,4,5,6,8,9,10,11,12,13,14,15,16,17,18,19,20]
 
-					self.pos = 0
+		for (var i = 0; i < images.length; i++) {
 
-					self.tags = []
+			var url = "https://interactive.guim.co.uk/2018/04/budget-vox-pix/" + dir  + 'budget-sign-' + images[i] + '.jpg'
 
-					for (var i = 0; i < tags.length; i++) {
+			var img = new Image();
 
-						let obj = {}
-						obj.tag = tags[i]
-						obj.active = self.toolbelt.contains(self.currentTags, tags[i])
-						obj.colour = self.scale( self.pos ).hex();
-						self.pos = self.pos + self.increment
-						self.tags.push(obj)
+			img.src = url;
 
-					}
+			self.imageSequence.push(img)
 
-					self.storyCount = data.length
+		}
 
-					self.data = data
+		this.animation = this.intervalTrigger()
 
-				    let tagsData = {
+		this.updater = this.updateFeed()
 
-				      tags: self.tags
+		this.social()
 
-				    };
+	}
 
-					let template = Handlebars.compile(tags_template);
+	social() {
 
-					let compiledHTML = template(tagsData);
+		var self = this
 
-					document.querySelector("#budget_tags").innerHTML = compiledHTML
+		var shareFn = share(self.socialization.title, self.socialization.url, self.socialization.fbImg, self.socialization.twImg, self.socialization.twHash, self.socialization.message);
 
-			        var tags = document.getElementsByClassName("budget");
+		document.querySelector("#zucker").addEventListener('click',() => shareFn('facebook'));
 
-			        var control = function() {
-
-			            let target = this.getAttribute('data-tag');
-
-			            if (this.classList.contains('active')) {
-
-			            	this.classList.remove('active')
-
-			            	self.updateTags(target, false)
-
-			            } else {
-
-			            	this.classList.add('active')
-
-			            	self.updateTags(target, true)
-
-			            }
-
-			        };
-
-			        for (var i = 0; i < tags.length; i++) {
-
-			            tags[i].addEventListener('click', control, false);
-
-			        }
-
-			        self.filterTags();
-	                
-	            }
-	            
-			});
-
-		}, 120000 );
+		document.querySelector("#twitter").addEventListener('click',() => shareFn('twitter'));
 
 	}
 
@@ -346,185 +356,31 @@ export class Budgetizer {
 
 	}
 
-	prepBio() {
+	updateBioTags(target, status, group) {
 
-		var self = this
-
-	    let tagsData = {
-
-	      group: self.bioTags
-
-	    };
-
-		let template = Handlebars.compile(bio_template);
-
-		let compiledHTML = template(tagsData);
-
-		document.querySelector("#bio").innerHTML = compiledHTML
-
-        var tags = document.getElementsByClassName("biotag");
-
-        var control = function() {
-
-            let target = this.getAttribute('data-label');
-
-            if (this.classList.contains('active')) {
-
-            	this.classList.remove('active')
-
-            	self.updateBioTags(target, false)
-
-            } else {
-
-            	this.classList.add('active')
-
-            	self.updateBioTags(target, true)
-
-            }
-
-        };
-
-        for (var i = 0; i < tags.length; i++) {
-
-            tags[i].addEventListener('click', control, false);
-
-        }
-
-
-		this.prepCats()
-
-	}
-
-	prepCats() {
-
-		var self = this
-
-	    let tagsData = {
-
-	      tags: self.tags
-
-	    };
-
-		let template = Handlebars.compile(tags_template);
-
-		let compiledHTML = template(tagsData);
-
-		document.querySelector("#budget_tags").innerHTML = compiledHTML
-
-        var tags = document.getElementsByClassName("budget");
-
-        var control = function() {
-
-            let target = this.getAttribute('data-tag');
-
-            if (this.classList.contains('active')) {
-
-            	this.classList.remove('active')
-
-            	self.updateTags(target, false)
-
-            } else {
-
-            	this.classList.add('active')
-
-            	self.updateTags(target, true)
-
-            }
-
-        };
-
-        for (var i = 0; i < tags.length; i++) {
-
-            tags[i].addEventListener('click', control, false);
-
-        }
-
-        document.querySelector("#select_all_tags").addEventListener('click', () => {
-
-			var tags = document.getElementsByClassName("budget");
-
-	        for (var i = 0; i < tags.length; i++) {
-
-	            tags[i].addEventListener('click', control, false);
-
-				if (!tags[i].classList.contains('active')) {
-
-					tags[i].classList.add('active')
-
-				}
-
-	        }
-
-			self.tags.forEach( (item) => {
-
-				item.active = true
-
-			});
-
-			self.filterTags();
-
-		});
-
-
-        document.querySelector("#deselect_all_tags").addEventListener('click', () => {
-
-			var tags = document.getElementsByClassName("budget");
-
-	        for (var i = 0; i < tags.length; i++) {
-
-	            tags[i].addEventListener('click', control, false);
-
-				if (tags[i].classList.contains('active')) {
-
-					tags[i].classList.remove('active')
-
-				}
-
-	        }
-
-			self.tags.forEach( (item) => {
-
-				item.active = false
-
-			});
-
-			self.filterTags();
-
-		});
-
-
-    	this.pagerank = this.data
-
-    	this.ractivate()
-
-	}
-
-	prepFooter() {
-
-		var self = this
-
-	    let footerData = {
-
-	      story: self.footer
-
-	    };
-
-		let template = Handlebars.compile(footer_template);
-
-		let compiledHTML = template(footerData);
-
-		document.querySelector("#footer").innerHTML = compiledHTML
-
-
-	}
-
-	updateBioTags(target, status) {
-
-		this.bio.filter( (item) => {
+		this.database.bio.filter( (item) => {
 
 			if (item.tag === target) {
 
 				item.active = status
+
+			}
+
+		});
+
+		this.database.biotags.filter( (item) => {
+
+			if (item.group === group) {
+
+				item.items.filter( (el) => {
+
+					if (el.item === target) {
+
+						el.active = status
+
+					}
+
+				});
 
 			}
 
@@ -536,7 +392,7 @@ export class Budgetizer {
 
 	updateTags(target, status) {
 
-		this.tags.filter( (item) => {
+		this.database.tags.filter( (item) => {
 
 			if (item.tag === target) {
 
@@ -556,7 +412,7 @@ export class Budgetizer {
 
 		self.currentTags = []
 
-		this.tags.forEach( (item) => {
+		this.database.tags.forEach( (item) => {
 
 			if (item.active) {
 
@@ -568,7 +424,7 @@ export class Budgetizer {
 
 		self.currentBioTags = []
 
-		this.bio.forEach( (item) => {
+		this.database.bio.forEach( (item) => {
 
 			if (item.active) {
 
@@ -586,8 +442,6 @@ export class Budgetizer {
 
 		var self = this
 
-		// console.log("Number of stories: " + this.data.length)
-
 		var results 
 
 		if (self.currentTags.length === 0 || self.currentTags.length === self.tags.length) {
@@ -603,12 +457,6 @@ export class Budgetizer {
 			});
 
 		}
-
-		//console.log(self.tags.length)
-
-		//console.log(self.currentTags.length)
-
-		//console.log("Results: " + results.length)
 
 		results.forEach( (item, index) => {
 
@@ -644,112 +492,108 @@ export class Budgetizer {
 
 		});
 
-		this.pagerank = results.sort(function(a, b) { return b.pagerank - a.pagerank; });
+		self.database.content = results.sort( (a, b) => b.pagerank - a.pagerank);
 
-		document.querySelector("#content_count").innerHTML = `Displaying ${results.length} of ${this.storyCount} stories.`
+		self.database.results = results.length
 
-		let display = (results.length < this.storyCount) ? 'inline-block' : 'none' ;
+		self.database.showSelectAll = (self.currentTags.length < self.database.tags.length) ? true : false ;
 
-		document.querySelector("#content_loaded").style.display = 'block'
+		self.database.showDeselectAll = (self.currentTags.length > 0) ? true : false ;
 
-		document.querySelector("#reset_container").style.display = display
-
-		self.render();
+		self.ractive.set(self.database)
 
 	}
 
-	ractivate() {
+	updateFeed() {
 
 		var self = this
 
-		this.render = function () {
-		  var ractive = new Ractive({
-		    target: "#budget_content",
-		    template: pagerank,
-		  	data: { 
-		  		content: self.pagerank,
-				classify: function(tag) {
-				  return (self.currentTags.length===0) ? 'tag active' : 'tag' + ( (self.toolbelt.contains(tag, self.currentTags)) ? ' active' : '') ;
-				}
-		  	}
-		  });
+		return window.setInterval( function() {
 
-		  ractive.set('content', self.pagerank);
+			xr.get('https://interactive.guim.co.uk/docsdata/' + self.key + '.json?ga=' + new Date().getTime()).then((resp) => {
 
-		  ractive.on( 'reset', function () {
-		    // Teardown, then re-render once fadeouts are complete
-		    ractive.teardown( self.render );
-		  });
-		};
+				self.database.updated = moment().format('ddd, MMM Do, h:mm a');
 
-		this.filterTags();
+				let json = resp.data.sheets.data
 
-		this.prepFooter();
+	            if (self.previous !== JSON.stringify(json)) {
 
-		this.preload()
+	            	self.processFeed(json)
+	                
+	            }
+	            
+			});
 
-	}  
+		}, 120000 );
 
-	preload() {
+	}
+
+	processFeed(json) {
 
 		var self = this
 
-		this.imageSequence = []
+    	self.previous = JSON.stringify(json)               
 
-		let size = getComputedStyle(document.querySelector('#prechecker'), ':before').getPropertyValue('content');
+		var tags = []
 
-		console.log(size)
+		var data = json.filter( (value) => {
 
-		var dir = (size==='small') ? '110/' : 
-			(size==='medium') ? '220/' : '' ;
+				return value.status === 'confirmed'
 
-		let images = [1,2,3,4,5,6,8,9,10,11,12,13,14,15,16,17,18,19,20]
+			});
 
-		for (var i = 0; i < images.length; i++) {
+		data.forEach(function(item, index) {
 
-			var url = "https://interactive.guim.co.uk/2018/04/budget-vox-pix/" + dir  + 'budget-sign-' + images[i] + '.jpg'
+			item.id = +item.id
 
-			var img = new Image();
+			item.exists = self.toolbelt.contains(self.memory, item.id)
 
-			img.src = url;
+			self.memory.indexOf(item.id) === -1 && item.id != '' ? self.memory.push(item.id) : ''; 
 
-			self.imageSequence.push(img)
+			let arr = item.tags.split(','); 
+
+			item.cats = arr
+
+			for (var i = 0; i < arr.length; i++) {
+
+				let tag = arr[i].trim()
+
+				tags.indexOf(tag) === -1 && tag != '' ? tags.push(tag) : ''; 
+
+			}
+
+			let status = self.htmlify(item.description, item.url, item.linktext)
+
+			item.html = status.content
+
+			item.solo = status.solo
+
+		});
+
+		let increment = 1 / tags.length 
+
+		let pos = 0
+
+		self.tags = []
+
+		for (let i = 0; i < tags.length; i++) {
+
+			let obj = {}
+			obj.tag = tags[i]
+			obj.active = self.toolbelt.contains(self.currentTags, tags[i])
+			obj.colour = self.scale( pos ).hex();
+			pos = pos + increment
+			self.tags.push(obj)
 
 		}
 
-		this.animation = this.intervalTrigger()
+		self.storyCount = data.length
 
-		this.updater = this.updateFeed()
+		self.data = data
 
-		document.querySelector("#update_time").innerHTML = "Updated: " + moment().format('ddd, MMM Do, h:mm a');
+		self.database.tags = self.tags
 
-		this.social()
-
-	}
-
-	getShareUrl() { 
-
-		var isInIframe = (parent !== window);
-		var parentUrl = null;
-		var shareUrl = (isInIframe) ? document.referrer : window.location.href;
-		shareUrl = shareUrl.split('?')[0]
-		return shareUrl;
-
-	}
-
-	social() {
-
-		var self = this
-
-		// title, shareURL, fbImg, twImg, hashTag
-
-		var title = "The complete 2019 Australian budget: choose what matters to you";
-
-		var shareFn = share(title, self.getShareUrl(), null, null, '#Budget2019 #auspol');
-
-		document.querySelector("#zucker").addEventListener('click',() => shareFn('facebook'));
-
-		document.querySelector("#twitter").addEventListener('click',() => shareFn('twitter'));
+        self.filterTags();
 
 	}
 

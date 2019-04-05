@@ -1,24 +1,49 @@
 const twitterBaseUrl = 'https://twitter.com/intent/tweet?text=';
-const facebookBaseUrl = 'https://www.facebook.com/dialog/feed?display=popup&app_id=741666719251986&redirect_uri=http://www.theguardian.com&link=';
 const googleBaseUrl = 'https://plus.google.com/share?url=';
 
-export default function share(title, shareURL, fbImg, twImg, hashTag) {
+export default function share(title, shareURL, fbImg, twImg, hashTag, FBmessage='') {
     var twImgText = twImg ? ` ${twImg.trim()} ` : ' ';
-    var fbImgQry = fbImg ? `&picture=${encodeURIComponent(fbImg)}` : '';
     return function (network, extra='') {
         var twitterMessage = `${extra}${title}${twImgText}${hashTag}`;
         var shareWindow;
 
         if (network === 'twitter') {
             shareWindow = twitterBaseUrl + encodeURIComponent(twitterMessage + ' ') + shareURL;
-        } else if (network === 'facebook') {
-            shareWindow = facebookBaseUrl + shareURL + fbImgQry;
         } else if (network === 'email') {
             shareWindow = 'mailto:?subject=' + encodeURIComponent(title) + '&body=' + shareURL;
         } else if (network === 'google') {
             shareWindow = googleBaseUrl + shareURL;
         }
 
-        window.open(shareWindow, network + 'share', 'width=640,height=320');
+        if (network != 'facebook') {
+            window.open(shareWindow, network + 'share', 'width=640,height=320');
+        } else {
+
+          if (FB) { //http://drib.tech/programming/dynamically-change-facebook-open-graph-meta-data-javascript
+
+            console.log("Initiated Facebook dynamic share stuff")
+
+            FB.ui({
+              method: 'share_open_graph',
+              action_type: 'og.likes',
+              action_properties: JSON.stringify({
+                object: {
+                  'og:url': shareURL,
+                  'og:title': title,
+                  'og:description': FBmessage,
+                  'og:image': fbImg
+                }
+              })
+            },
+            function (response) {
+            // Action after response
+              console.log("Facebook share stuff worked")
+            });
+
+
+          }
+
+        }
+        
     }
 }
